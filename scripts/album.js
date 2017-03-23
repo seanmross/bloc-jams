@@ -48,7 +48,7 @@ var albumDrake = {
 var createSongRow = function(songNumber, songName, songLength) {
      var template =
         '<tr class="album-view-song-item">'
-      + '  <td class="song-item-number">' + songNumber + '</td>'
+      + '  <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
       + '  <td class="song-item-title">' + songName + '</td>'
       + '  <td class="song-item-duration">' + songLength + '</td>'
       + '</tr>'
@@ -77,22 +77,42 @@ var createSongRow = function(songNumber, songName, songLength) {
     }
 };
 
+var songListContainer = document.getElementsByClassName('album-view-song-list')[0];
+var songRows = document.getElementsByClassName('album-view-song-item');
+
+var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
+
 window.onload = function() {
-    //add click event listener on the album cover that responds with a toggle callback
-    //album_cover.addEventListener('click', toggleAlbum)
+    /*
+    //add click event listener on the album cover that is handled by a toggle callback
     var albumList = [albumPicasso, albumMarconi, albumDrake];
     var counter = 0;
-
     setCurrentAlbum(albumList[counter]);
-
     var toggleAlbum = function(){
       counter++;
       if (counter > albumList.length - 1){
         counter = 0;
       }
       setCurrentAlbum(albumList[counter]);
-    }
+    };
+    albumImage.addEventListener('click', toggleAlbum);*/
+    setCurrentAlbum(albumPicasso);
 
-    albumImage.addEventListener('click', toggleAlbum);
+    songListContainer.addEventListener('mouseover', function(event) {
+         // #1
+         console.log(event.target);
+         if (event.target.parentElement.className === 'album-view-song-item') {
+             // Change the content from the number to the play button's HTML
+             event.target.parentElement.querySelector('.song-item-number').innerHTML = playButtonTemplate;
+         }
+     });
+
+    for (var i = 0; i < songRows.length; i++) {
+         songRows[i].addEventListener('mouseleave', function(event) {
+             // Revert the content back to the number
+             // Selects first child element, which is the song-item-number element
+             this.children[0].innerHTML = this.children[0].getAttribute('data-song-number');
+         });
+     }
 
 };
