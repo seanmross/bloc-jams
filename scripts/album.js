@@ -85,7 +85,7 @@ var createSongRow = function(songNumber, songName, songLength) {
    $albumSongList.empty();
 
    for (var i = 0; i < album.songs.length; i++) {
-     var $newRow = createSongRow(i + 1, album.songs[i].title, album.songs[i].duration);
+     var $newRow = createSongRow(i + 1, album.songs[i].title, filterTimeCode(album.songs[i].duration));
      $albumSongList.append($newRow);
    }
 };
@@ -202,14 +202,41 @@ var togglePlayFromPlayerBar = function(){
       }
 };
 
+var filterTimeCode = function(timeInSeconds){
+  var minutes = 0;
+  var seconds = Math.floor(parseFloat(timeInSeconds));
+
+  var checkTime = function(i) {
+    if (i < 10) {
+      i = "0" + i;
+    }
+    return i;
+  };
+
+  if (seconds >= 60){
+    minutes = Math.floor(seconds / 60);
+    seconds = seconds - minutes*60;
+  }
+  return minutes + ':' + checkTime(seconds);
+};
+
+var setCurrentTimeInPlayerBar = function(currentTime){
+  var $currentTimeElement = $('.player-bar .currently-playing .current-time');
+  $currentTimeElement.html(currentTime);
+};
+
+var setTotalTimeInPlayerBar = function(totalTime){
+  var $totalTimeElement = $('.player-bar .currently-playing .total-time');
+  $totalTimeElement.html(totalTime);
+};
+
 var updateSeekBarWhileSongPlays = function() {
      if (currentSoundFile) {
-         // #10
          currentSoundFile.bind('timeupdate', function(event) {
-             // #11
              var seekBarFillRatio = this.getTime() / this.getDuration();
              var $seekBar = $('.seek-control .seek-bar');
-
+             setCurrentTimeInPlayerBar(filterTimeCode(this.getTime()));
+             setTotalTimeInPlayerBar(filterTimeCode(this.getDuration()));
              updateSeekPercentage($seekBar, seekBarFillRatio);
          });
      }
@@ -229,6 +256,8 @@ var updateSeekPercentage = function($seekBar, seekBarFillRatio) {
 
  var setupSeekBars = function() {
      var $seekBars = $('.player-bar .seek-bar');
+     var $onloadSeekPercentage = $('.player-bar .currently-playing .seek-bar');
+     updateSeekPercentage($onloadSeekPercentage, 0);
 
      $seekBars.click(function(event) {
          var offsetX = event.pageX - $(this).offset().left;
@@ -267,6 +296,19 @@ var updateSeekPercentage = function($seekBar, seekBarFillRatio) {
          });
      });
  };
+/*
+ Write a function called filterTimeCode that takes one argument, timeInSeconds. It should:
+ Use the parseFloat() method to get the seconds in number form.
+ Store variables for whole seconds and whole minutes (hint: use Math.floor() to round numbers down).
+ Return the time in the format X:XX
+
+ Wrap the arguments passed to setCurrentTimeInPlayerBar() and setTotalTimeInPlayerBar() in a filterTimeCode()
+ call so the time output below the seek bar is formatted.
+
+ Wrap the songLength variable in createSongRow() in a filterTimeCode() call so the time lengths are formatted.
+*/
+
+
 
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
 var pauseButtonTemplate = '<a class="album-song-button"><span class="ion-pause"></span></a>';
